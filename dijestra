@@ -1,0 +1,75 @@
+#include<bits/stdc++.h>
+using namespace std;
+#define int long long
+#define pi pair<long,long> 
+
+class dijestra
+{
+	public:
+	vector<int> visited;
+	vector<int> dist;
+	vector<vector<pair<int,int>>> adjlist;
+	priority_queue<pi,vector<pi>,greater<pi>> pq;
+	dijestra(int n,int m,vector<vector<pair<int,int>>> &adj,int source)
+	{
+		adjlist=adj;
+		visited.resize(n,0);
+		dist.resize(n,LLONG_MAX);
+		dist[source]=0;
+	    pq.push({0,source});
+	}
+	vector<int> findshortestpath()
+	{
+		while(!pq.empty())
+		{
+			auto t=pq.top();
+			pq.pop();
+			//cout<<t.second<<endl;
+			if(visited[t.second]==1)
+			continue;
+			visited[t.second]=1;
+			dist[t.second]=t.first;
+			for(auto &x:adjlist[t.second])
+			{
+				if(t.first+x.second<dist[x.first])
+				{
+					pq.push({t.first+x.second,x.first});
+				}
+			}
+		}
+		return dist;
+	}
+};
+int32_t main()
+{
+	int n,m;
+	cin>>n>>m;
+	vector<vector<pair<int,int>>> adjlist(n);
+	vector<vector<pair<int,int>>> adjlist1(n);
+	vector<vector<int>> tk;
+	for(int i=0;i<m;i++)
+	{
+		int a,b,c;
+		cin>>a;
+		cin>>b;
+		cin>>c;
+		a--;
+		b--;
+		tk.push_back({a,b,c});
+		adjlist[a].push_back({b,c});
+		adjlist1[b].push_back({a,c});
+	}
+	dijestra d(n,m,adjlist,0);
+	vector<int> dist=d.findshortestpath();
+	dijestra d1(n,m,adjlist1,n-1);
+	vector<int> dist1=d1.findshortestpath();
+	int ans=LLONG_MAX;
+	for(int i=0;i<tk.size();i++)
+	{
+		if(dist[tk[i][0]]!=LLONG_MAX && dist1[tk[i][1]]!=LLONG_MAX)
+		ans=min(ans,dist[tk[i][0]]+dist1[tk[i][1]]+tk[i][2]/2);
+		//ans=min(ans,(long long)dist[tk[i][1]]+dist1[tk[i][0]]+tk[i][2]/2);
+		//cout<<i<<" "<<ans<<endl;		
+	}	
+	cout<<ans;
+}
