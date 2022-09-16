@@ -6,16 +6,24 @@ using namespace std;
 class dijestra
 {
 	public:
-	vector<int> visited;
 	vector<int> dist;
 	vector<vector<pair<int,int>>> adjlist;
+	vector<int> routes;
+	vector<int> min_routes;
+	vector<int> max_routes;
 	priority_queue<pi,vector<pi>,greater<pi>> pq;
 	dijestra(int n,int m,vector<vector<pair<int,int>>> &adj,int source)
 	{
 		adjlist=adj;
 		visited.resize(n,0);
 		dist.resize(n,LLONG_MAX);
+		routes.resize(n,0);
+		min_routes.resize(n,0);
+		max_routes.resize(n,0);
 		dist[source]=0;
+		routes[source]=1;
+		min_routes[source]=0;
+		max_routes[source]=0;
 	    pq.push({0,source});
 	}
 	vector<int> findshortestpath()
@@ -24,16 +32,22 @@ class dijestra
 		{
 			auto t=pq.top();
 			pq.pop();
-			//cout<<t.second<<endl;
-			if(visited[t.second]==1)
-			continue;
-			visited[t.second]=1;
-			dist[t.second]=t.first;
 			for(auto &x:adjlist[t.second])
 			{
 				if(t.first+x.second<dist[x.first])
 				{
+					routes[x.first]=routes[t.second];
+					min_routes[x.first]=1+min_routes[t.second];
+					max_routes[x.first]=1+max_routes[t.second];					
+					dist[x.first]=t.first+x.second;
 					pq.push({t.first+x.second,x.first});
+				}
+				else if((t.first+x.second)==dist[x.first])
+				{
+					routes[x.first]+=routes[t.second];
+					routes[x.first]%=1000000007;
+					min_routes[x.first]=min(min_routes[x.first],1+min_routes[t.second]);
+					max_routes[x.first]=max(max_routes[x.first],1+max_routes[t.second]);
 				}
 			}
 		}
